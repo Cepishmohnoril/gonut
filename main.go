@@ -71,11 +71,9 @@ func (g *Game) renderFrame(A float64, B float64) {
 			yp := int(math.Round((K1*y/K2 + z)) + 200)
 			L := cosBeta*cosAlpha*sinB - cosA*cosAlpha*sinBeta - sinA*sinAlpha + cosB*(cosA*sinAlpha-cosAlpha*sinA*sinBeta)
 
-			if L > -1 {
-				if z > zBuffer[xp][yp] {
-					g.setPixel(byte(L*255), xp, yp)
-					zBuffer[xp][yp] = z
-				}
+			if z > zBuffer[xp][yp] {
+				g.setPixel(byte(L*255), xp, yp)
+				zBuffer[xp][yp] = z
 			}
 		}
 	}
