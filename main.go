@@ -50,6 +50,11 @@ func (g *Game) renderFrame(A float64, B float64) {
 	sinA := math.Sin(A)
 	cosB := math.Cos(B)
 	sinB := math.Sin(B)
+	zBuffer := make([][]float64, screenWidth)
+
+	for i := range zBuffer {
+		zBuffer[i] = make([]float64, screenHeight)
+	}
 
 	for alpha := 0.0; alpha <= twoPi; alpha += alphaStep {
 		cosAlpha := math.Cos(alpha)
@@ -62,21 +67,21 @@ func (g *Game) renderFrame(A float64, B float64) {
 			x := (R2+R1*cosAlpha)*(cosBeta*cosB+sinA*sinB*sinBeta) - R1*cosA*sinB*sinAlpha
 			y := (R2+R1*cosAlpha)*(cosBeta*sinB-cosB*sinA*sinBeta) + R1*cosA*cosB*sinAlpha
 			z := cosA*(R2+R1*cosAlpha)*sinBeta + R1*sinA*sinAlpha
-			xp := math.Round((K1*x/K2 + z)) + 200
-			yp := math.Round((K1*y/K2 + z)) + 200
+			xp := int(math.Round((K1*x/K2 + z)) + 200)
+			yp := int(math.Round((K1*y/K2 + z)) + 200)
 			L := cosBeta*cosAlpha*sinB - cosA*cosAlpha*sinBeta - sinA*sinAlpha + cosB*(cosA*sinAlpha-cosAlpha*sinA*sinBeta)
 
 			if L > -1 {
-				//Z buffer. xy value is closer than existing or empty than set
-				//z > zBuffer[x][y]
-				//
-				g.setPixel(byte(L*255), xp, yp)
+				if z > zBuffer[xp][yp] {
+					g.setPixel(byte(L*255), xp, yp)
+					zBuffer[xp][yp] = z
+				}
 			}
 		}
 	}
 }
 
-func (g *Game) setPixel(val byte, x float64, y float64) {
+func (g *Game) setPixel(val byte, x int, y int) {
 	p := int(4 * (y*screenWidth + x))
 
 	g.pixels[p] = val
